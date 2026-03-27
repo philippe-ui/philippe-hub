@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Philippe Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0e0f11;--sidebar-bg:#131416;--surface:#1a1c1f;--surface2:#212326;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#e8e9ea;--text-muted:#7a7d85;--text-hint:#4a4d55;
+  --accent-mail:#4f9cf9;--accent-immo:#3ecf8e;--accent-auto:#f97316;--accent-tasks:#a78bfa;
+  --accent-mail-bg:rgba(79,156,249,0.12);--accent-immo-bg:rgba(62,207,142,0.12);
+  --accent-auto-bg:rgba(249,115,22,0.12);--accent-tasks-bg:rgba(167,139,250,0.12);
+  --font-head:'Syne',sans-serif;--font-mono:'IBM Plex Mono',monospace;
+  --radius:8px;--radius-lg:12px;
+}
+html,body{height:100%;overflow:hidden;}
+body{font-family:var(--font-mono);background:var(--bg);color:var(--text);display:flex;font-size:13px;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:230px;min-width:230px;background:var(--sidebar-bg);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;overflow-y:auto;}
+.workspace-header{padding:18px 16px 14px;border-bottom:1px solid var(--border);}
+.workspace-name{font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:9px;}
+.workspace-name::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--accent-immo);flex-shrink:0;}
+.workspace-sub{font-size:10.5px;color:var(--text-muted);margin-top:3px;}
+
+.sidebar-section{padding:20px 12px 6px;}
+.sidebar-label{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-hint);padding:0 6px;margin-bottom:6px;font-family:var(--font-head);}
+
+.ch{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:var(--radius);cursor:pointer;color:var(--text-muted);font-size:12.5px;transition:all 0.15s;border:1px solid transparent;font-family:var(--font-mono);margin-bottom:2px;}
+.ch:hover{background:var(--surface);color:var(--text);}
+.ch.active{background:var(--surface);color:var(--text);border-color:var(--border2);}
+.ch-hash{font-size:14px;color:var(--text-hint);}
+.badge{margin-left:auto;min-width:18px;height:18px;border-radius:9px;font-size:10px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 5px;}
+.ch-mail .badge{background:var(--accent-mail);}
+.ch-immo .badge{background:var(--accent-immo);}
+.ch-auto .badge{background:var(--accent-auto);}
+.ch-tasks .badge{background:var(--accent-tasks);}
+
+.sidebar-footer{margin-top:auto;padding:12px;}
+.user-row{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:var(--radius);background:var(--surface);border:1px solid var(--border);}
+.user-avatar{width:28px;height:28px;border-radius:6px;background:rgba(79,156,249,0.2);color:var(--accent-mail);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:var(--font-head);flex-shrink:0;}
+.user-name{font-size:12px;font-weight:500;color:var(--text);font-family:var(--font-head);}
+.user-status{font-size:10px;color:var(--text-muted);}
+.online-dot{width:7px;height:7px;border-radius:50%;background:var(--accent-immo);margin-left:auto;flex-shrink:0;}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+
+.ch-header{padding:14px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;background:var(--sidebar-bg);flex-shrink:0;}
+.ch-title{font-family:var(--font-head);font-size:15px;font-weight:600;color:var(--text);}
+.ch-desc{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.stat-pill{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;background:var(--surface);border:1px solid var(--border2);font-size:11px;color:var(--text-muted);}
+.stat-dot{width:6px;height:6px;border-radius:50%;}
+
+/* ── MESSAGES ── */
+.messages{flex:1;overflow-y:auto;padding:18px 22px;display:flex;flex-direction:column;gap:1px;}
+.messages::-webkit-scrollbar{width:4px;}
+.messages::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+.day-sep{display:flex;align-items:center;gap:12px;padding:18px 0 10px;color:var(--text-hint);font-size:10px;text-transform:uppercase;letter-spacing:0.09em;}
+.day-sep::before,.day-sep::after{content:'';flex:1;height:1px;background:var(--border);}
+
+.msg{display:flex;gap:12px;padding:6px 8px;border-radius:var(--radius);transition:background 0.1s;}
+.msg:hover{background:var(--surface);}
+.av{width:34px;height:34px;border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;font-family:var(--font-head);}
+.av-mail{background:rgba(79,156,249,0.18);color:var(--accent-mail);}
+.av-immo{background:rgba(62,207,142,0.18);color:var(--accent-immo);}
+.av-auto{background:rgba(249,115,22,0.18);color:var(--accent-auto);}
+.av-tasks{background:rgba(167,139,250,0.18);color:var(--accent-tasks);}
+.av-me{background:rgba(255,255,255,0.06);color:var(--text-muted);}
+
+.msg-body{flex:1;min-width:0;}
+.msg-meta{display:flex;align-items:baseline;gap:8px;margin-bottom:4px;}
+.msg-author{font-family:var(--font-head);font-size:13px;font-weight:600;color:var(--text);}
+.msg-time{font-size:10.5px;color:var(--text-hint);}
+.msg-text{color:var(--text-muted);line-height:1.65;font-size:12.5px;}
+.msg-text strong{color:var(--text);font-weight:500;}
+
+.card{margin-top:9px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 14px;border-left:3px solid var(--accent-mail);}
+.card.immo{border-left-color:var(--accent-immo);}
+.card.auto{border-left-color:var(--accent-auto);}
+.card.tasks{border-left-color:var(--accent-tasks);}
+.card-head{font-family:var(--font-head);font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:9px;text-transform:uppercase;letter-spacing:0.07em;}
+.card-row{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--text-muted);}
+.card-row:last-child{border-bottom:none;}
+.tag{display:inline-flex;align-items:center;padding:1px 7px;border-radius:4px;font-size:10.5px;white-space:nowrap;}
+.t-urgent{background:rgba(239,68,68,0.14);color:#ef4444;}
+.t-info{background:var(--accent-mail-bg);color:var(--accent-mail);}
+.t-done{background:var(--accent-immo-bg);color:var(--accent-immo);}
+.t-new{background:var(--accent-immo-bg);color:var(--accent-immo);}
+.t-old{background:rgba(255,255,255,0.05);color:var(--text-hint);}
+.t-ok{background:var(--accent-immo-bg);color:var(--accent-immo);}
+.t-warn{background:var(--accent-auto-bg);color:var(--accent-auto);}
+.t-err{background:rgba(239,68,68,0.14);color:#ef4444;}
+
+.stats-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+.stat-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:10.5px;background:rgba(255,255,255,0.04);color:var(--text-hint);border:1px solid var(--border);}
+
+/* ── INPUT BAR ── */
+.input-bar{padding:12px 22px 18px;border-top:1px solid var(--border);background:var(--sidebar-bg);flex-shrink:0;}
+.input-wrap{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-lg);display:flex;align-items:center;gap:10px;padding:10px 14px;transition:border-color 0.15s;}
+.input-wrap:focus-within{border-color:rgba(79,156,249,0.35);}
+.input-wrap input{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:var(--font-mono);font-size:12.5px;caret-color:var(--accent-mail);}
+.input-wrap input::placeholder{color:var(--text-hint);}
+.input-hint{font-size:10.5px;color:var(--text-hint);text-align:center;margin-top:7px;}
+.input-hint a{color:var(--accent-mail);text-decoration:none;}
+
+/* ── HIDDEN PANELS ── */
+.panel{display:none;}
+.panel.active{display:flex;flex-direction:column;height:100%;}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="workspace-header">
+    <div class="workspace-name">Philippe Hub</div>
+    <div class="workspace-sub">Automatisations · IA · Immobilier</div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-label">Canaux</div>
+    <div class="ch ch-mail active" onclick="show('mail')" id="nav-mail">
+      <span class="ch-hash">#</span><span>mails-quotidiens</span>
+      <span class="badge">4</span>
+    </div>
+    <div class="ch ch-immo" onclick="show('immo')" id="nav-immo">
+      <span class="ch-hash">#</span><span>alertes-immo</span>
+      <span class="badge">5</span>
+    </div>
+    <div class="ch ch-auto" onclick="show('auto')" id="nav-auto">
+      <span class="ch-hash">#</span><span>automatisations</span>
+      <span class="badge">1</span>
+    </div>
+    <div class="ch ch-tasks" onclick="show('tasks')" id="nav-tasks">
+      <span class="ch-hash">#</span><span>tâches-actions</span>
+      <span class="badge">6</span>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-avatar">P</div>
+      <div>
+        <div class="user-name">Philippe</div>
+        <div class="user-status">Actif</div>
+      </div>
+      <div class="online-dot"></div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+
+  <!-- ── PANEL MAILS ── -->
+  <div id="panel-mail" class="panel active">
+    <div class="ch-header">
+      <div>
+        <div class="ch-title"># mails-quotidiens</div>
+        <div class="ch-desc">Résumés automatiques de ta boîte Gmail · Aujourd'hui 07h30</div>
+      </div>
+      <div class="header-right">
+        <div class="stat-pill"><div class="stat-dot" style="background:var(--accent-immo)"></div>15 emails · 4 urgents</div>
+      </div>
+    </div>
+    <div class="messages">
+      <div class="day-sep">vendredi 27 mars 2026</div>
+
+      <div class="msg">
+        <div class="av av-mail">M</div>
+        <div class="msg-body">
+          <div class="msg-meta"><span class="msg-author">Claude Mail</span><span class="msg-time">07:31</span></div>
+          <div class="msg-text">Bonjour Philippe — voici ton résumé de ce matin. <strong>4 points d'action prioritaires</strong> identifiés parmi 15 emails.</div>
+          <div class="card">
+            <div class="card-head">Emails analysés</div>
+            <div class="card-row"><span class="tag t-urgent">⚡ urgent</span><span><strong>Brevo — 57 tâches en retard</strong> — dont une réunion ouverte depuis 412 jours, à traiter en priorité</span></div>
+            <div class="card-row"><span class="tag t-urgent">⚡ urgent</span><span><strong>Call accompagnement 15h–17h</strong> — lien Google Meet modifié ce matin, utilise le nouveau lien</span></div>
+            <div class="card-row"><span class="tag t-info">• info</span><span><strong>LinkedIn — 5 messages non lus</strong> — Maël, Kolawolé, Loïc, Cédric et Sarah t'ont écrit aujourd'hui</span></div>
+            <div class="card-row"><span class="tag t-info">• info</span><span><strong>Greenbull — Huddle annulé</strong> — Nour Jamo a annulé la réunion hebdo Q1 sans date de report</span></div>
+            <div class="card-row"><span class="tag t-done">✓ traité</span><span><strong>DirectAnnonces — 9 nouvelles annonces</strong> — analysées et envoyées dans #alertes-immo</span></div>
+          </div>
+          <div class="stats-row">
+            <span class="stat-tag">total: 15</span>
+            <span class="stat-tag">urgents: 4</span>
+            <span class="stat-tag">infos: 7</span>
+            <span class="stat-tag">traités: 4</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="input-bar">
+      <div class="input-wrap"><input type="text" placeholder="Demande à Claude de répondre à un email, de résumer un fil..." /></div>
+      <div class="input-hint">Interface de démonstration · Pour activer les appels live, <a href="#">connecte ton API Anthropic</a></div>
+    </div>
+  </div>
+
+  <!-- ── PANEL IMMO ── -->
+  <div id="panel-immo" class="panel">
+    <div class="ch-header">
+      <div>
+        <div class="ch-title"># alertes-immo</div>
+        <div class="ch-desc">Nouvelles annonces immobilières détectées · Aujourd'hui 07h32</div>
+      </div>
+      <div class="header-right">
+        <div class="stat-pill"><div class="stat-dot" style="background:var(--accent-immo)"></div>9 annonces · 5 nouvelles</div>
+      </div>
+    </div>
+    <div class="messages">
+      <div class="day-sep">vendredi 27 mars 2026</div>
+
+      <div class="msg">
+        <div class="av av-immo">I</div>
+        <div class="msg-body">
+          <div class="msg-meta"><span class="msg-author">Claude Immo</span><span class="msg-time">07:32</span></div>
+          <div class="msg-text"><strong>9 annonces</strong> reçues via DirectAnnonces ce matin — <strong>5 premières parutions</strong> à ne pas manquer.</div>
+          <div class="card immo">
+            <div class="card-head">Annonces détectées</div>
+            <div class="card-row"><span class="tag t-new">🆕 nouveau</span><span><strong>T3 Toulouse centre</strong> — 189 000 € · 65 m² · Revenus Airbnb estimés ~25 000 €/an</span></div>
+            <div class="card-row"><span class="tag t-new">🆕 nouveau</span><span><strong>Terrain Foix (09)</strong> — 80 000 € · 775 m² constructible · Vue dégagée, 5 min centre</span></div>
+            <div class="card-row"><span class="tag t-new">🆕 nouveau</span><span><strong>T2 Toulouse Hyper-centre</strong> — 142 000 € · 38 m² · Proche Jean Jaurès</span></div>
+            <div class="card-row"><span class="tag t-new">🆕 nouveau</span><span><strong>Maison Changé (72)</strong> — 215 000 € · 110 m² · Garage, jardin 400 m²</span></div>
+            <div class="card-row"><span class="tag t-new">🆕 nouveau</span><span><strong>Local commercial Le Mans</strong> — 98 000 € · 85 m² · Zone commerciale active</span></div>
+            <div class="card-row"><span class="tag t-old">🔁 déjà vu</span><span><strong>Terrain Le Mans Sud</strong> — 180 000 € · 2 800 m² · Déjà parue fév. 2026</span></div>
+            <div class="card-row"><span class="tag t-old">🔁 déjà vu</span><span><strong>Parking Toulouse Wilson</strong> — 35 000 € · 2 places enfilade · Déjà parue jan. 2026</span></div>
+          </div>
+          <div class="stats-row">
+            <span class="stat-tag">total: 9</span>
+            <span class="stat-tag">nouvelles: 5</span>
+            <span class="stat-tag">déjà vues: 4</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="input-bar">
+      <div class="input-wrap"><input type="text" placeholder="Analyse cette annonce, compare avec mon patrimoine actuel..." /></div>
+      <div class="input-hint">Interface de démonstration · Pour activer les appels live, <a href="#">connecte ton API Anthropic</a></div>
+    </div>
+  </div>
+
+  <!-- ── PANEL AUTO ── -->
+  <div id="panel-auto" class="panel">
+    <div class="ch-header">
+      <div>
+        <div class="ch-title"># automatisations</div>
+        <div class="ch-desc">Rapports d'exécution de tes automatisations · Aujourd'hui 07h00</div>
+      </div>
+      <div class="header-right">
+        <div class="stat-pill"><div class="stat-dot" style="background:var(--accent-auto)"></div>5 runs · 1 erreur</div>
+      </div>
+    </div>
+    <div class="messages">
+      <div class="day-sep">vendredi 27 mars 2026</div>
+
+      <div class="msg">
+        <div class="av av-auto">A</div>
+        <div class="msg-body">
+          <div class="msg-meta"><span class="msg-author">Claude Auto</span><span class="msg-time">07:01</span></div>
+          <div class="msg-text">Bilan des automatisations nocturnes — <strong>4 succès, 1 erreur</strong> à corriger.</div>
+          <div class="card auto">
+            <div class="card-head">Automatisations</div>
+            <div class="card-row"><span class="tag t-ok">✓ ok</span><span><strong>Résumé Gmail quotidien</strong> — Exécuté à 07h00, 15 emails traités, rapport envoyé</span></div>
+            <div class="card-row"><span class="tag t-ok">✓ ok</span><span><strong>Alerte DirectAnnonces</strong> — 9 annonces récupérées et triées automatiquement</span></div>
+            <div class="card-row"><span class="tag t-ok">✓ ok</span><span><strong>Sync Google Drive</strong> — 3 nouveaux documents immobiliers archivés</span></div>
+            <div class="card-row"><span class="tag t-ok">✓ ok</span><span><strong>Rapport Brevo</strong> — 57 tâches en retard détectées et transmises</span></div>
+            <div class="card-row"><span class="tag t-err">✗ erreur</span><span><strong>Webhook LinkedIn</strong> — Timeout après 30s, messages non récupérés · À relancer</span></div>
+          </div>
+          <div class="stats-row">
+            <span class="stat-tag">total: 5</span>
+            <span class="stat-tag">ok: 4</span>
+            <span class="stat-tag">erreurs: 1</span>
+            <span class="stat-tag">avertissements: 0</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="input-bar">
+      <div class="input-wrap"><input type="text" placeholder="Relance une automatisation, crée un nouveau scénario Make..." /></div>
+      <div class="input-hint">Interface de démonstration · Pour activer les appels live, <a href="#">connecte ton API Anthropic</a></div>
+    </div>
+  </div>
+
+  <!-- ── PANEL TASKS ── -->
+  <div id="panel-tasks" class="panel">
+    <div class="ch-header">
+      <div>
+        <div class="ch-title"># tâches-actions</div>
+        <div class="ch-desc">Actions prioritaires identifiées · Aujourd'hui 07h33</div>
+      </div>
+      <div class="header-right">
+        <div class="stat-pill"><div class="stat-dot" style="background:var(--accent-tasks)"></div>6 actions · 2 urgentes</div>
+      </div>
+    </div>
+    <div class="messages">
+      <div class="day-sep">vendredi 27 mars 2026</div>
+
+      <div class="msg">
+        <div class="av av-tasks">T</div>
+        <div class="msg-body">
+          <div class="msg-meta"><span class="msg-author">Claude Tasks</span><span class="msg-time">07:33</span></div>
+          <div class="msg-text"><strong>6 actions identifiées</strong> dont 2 urgentes pour aujourd'hui.</div>
+          <div class="card tasks">
+            <div class="card-head">Actions à faire</div>
+            <div class="card-row"><span class="tag t-urgent">⚡ urgent</span><span><strong>Rejoindre le call 15h avec le nouveau lien Meet</strong> — Lien modifié ce matin par l'organisateur</span></div>
+            <div class="card-row"><span class="tag t-urgent">⚡ urgent</span><span><strong>Traiter les 57 tâches Brevo en retard</strong> — Dont une réunion ouverte 412 jours</span></div>
+            <div class="card-row"><span class="tag t-info">• cette semaine</span><span><strong>Répondre à Maël PREAUCHAT sur LinkedIn</strong> — Message reçu ce matin</span></div>
+            <div class="card-row"><span class="tag t-info">• cette semaine</span><span><strong>Clarifier le report du Huddle Greenbull</strong> — Nour Jamo a annulé sans nouvelle date</span></div>
+            <div class="card-row"><span class="tag t-info">• cette semaine</span><span><strong>Analyser le T3 Toulouse Airbnb</strong> — Rendement estimé ~25 000 €/an, 1ère parution</span></div>
+            <div class="card-row"><span class="tag t-info">• plus tard</span><span><strong>Relancer le webhook LinkedIn</strong> — Automatisation en erreur depuis ce matin</span></div>
+          </div>
+          <div class="stats-row">
+            <span class="stat-tag">total: 6</span>
+            <span class="stat-tag">urgentes: 2</span>
+            <span class="stat-tag">cette semaine: 3</span>
+            <span class="stat-tag">plus tard: 1</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="input-bar">
+      <div class="input-wrap"><input type="text" placeholder="Marque une tâche comme faite, ajoute un rappel..." /></div>
+      <div class="input-hint">Interface de démonstration · Pour activer les appels live, <a href="#">connecte ton API Anthropic</a></div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+function show(ch){
+  document.querySelectorAll('.ch').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(el=>el.classList.remove('active'));
+  document.getElementById('nav-'+ch).classList.add('active');
+  document.getElementById('panel-'+ch).classList.add('active');
+  document.getElementById('nav-'+ch).querySelector('.badge').style.display='none';
+}
+</script>
+</body>
+</html>
